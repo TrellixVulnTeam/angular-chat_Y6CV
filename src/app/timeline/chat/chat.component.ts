@@ -3,11 +3,9 @@ import { AngularFireDatabase, AngularFireList, SnapshotAction } from '@angular/f
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Comment } from '../core/models/comment';
-import { User } from '../core/models/user';
-
-const CURRENT_USER: User = new User(1, '五十川 洋平');
-const ANOTHER_USER: User = new User(2, '竹井 賢治');
+import { Comment } from '../../core/models/comment';
+import { User } from '../../core/models/user';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'ac-chat',
@@ -18,11 +16,28 @@ export class ChatComponent implements OnInit {
 
   comments$: Observable<Comment[]>;
   commentsRef: AngularFireList<Comment>;
-  currentUser = CURRENT_USER;
+  currentUser: User;
+  currentUser$: Observable<User>;
   comment = '';
 
-  constructor(private db: AngularFireDatabase) {
+  constructor(
+    private afAuth: AngularFireAuth,
+    private db: AngularFireDatabase
+  ) {
     this.commentsRef = db.list('/comments');
+  }
+
+  ngOnInit(): void {
+    this.currentUser$ = this.afAuth.authState.pipe(
+      map((user: firebase.User | null) => {
+        if (user) {
+          this.currentUser = new User(user);
+          return this.currentUser;
+        }
+        return null;
+      })
+    );
+
     this.comments$ = this.commentsRef.snapshotChanges()
       .pipe(
         map((snapshots: SnapshotAction<Comment>[]) => {
@@ -32,9 +47,6 @@ export class ChatComponent implements OnInit {
           });
         })
       );
-  }
-
-  ngOnInit(): void {
   }
 
   addComment(comment: string): void {

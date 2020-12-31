@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "angular-chat": "angular-chat-e8a4c"
+  },
+  "targets": {
+    "angular-chat-e8a4c": {
+      "hosting": {
+        "angular-chat-e8a4c": [
+          "angular-chat"
+        ],
+        "angular-chat": [
+          "angular-chat-e8a4c"
+        ]
+      }
+    }
+  }
+}
